@@ -1,18 +1,18 @@
 # Welcome to this Microservice Example
 *This repository is the english copy of a practical project I finished during my studies in business informatics in April 2023. The purpose of this repository is to serve as example when sharing know-how with colleagues and to provide them with a first source of practical contents that (probably?) can't be destroyed.*
 
-[1. Project Information, Task Description, and Goal](1. Project Information, Task Description, and Goal)
-[2. Part I: Development of Microservice "Optimize!"](2. Part I: Development of Microservice "Optimize!")
-[2.1 Structure of the application ](2.1 Structure of the application)
-[2.2 Functionality of the code in app.py](2.2 Functionality of the code in app.py)
-[2.3 12-Factor-Apps and API Documentation](2.3 12-Factor-Apps and API Documentation)
-[3. Part II: Docker Deployment](Part II: Docker Deployment)
-[3.1 Preparation](3.1Preparation)
-[3.2 Compilation Instructions: Building the Container Image and Starting the Container in the Network](3.2 Compilation Instructions: Building the Container Image and Starting the Container in the Network)
-[4. Part III: Kubernetes Deployment](4. Part III: Kubernetes Deployment)
-[4.1 Preparation](4.1 Preparation)
-[4.2 Compilation instructions: performing the deployment and check](4.2 Compilation instructions: performing the deployment and check)
-[# 5. Summary and Starting the Service](5. Summary and Starting the Service) 
+[1. Project Information, Task Description, and Goal](1.-Project-Information,-Task-Description,-and-Goal) <br>
+[2. Part I: Development of Microservice](2.-Part-I:-Development-of-Microservice) <br>
+[2.1 Structure of the application](2.1-Structure-of-the-application) <br>
+[2.2 Functionality of the code in app.py](2.2-Functionality-of-the-code-in-app.py) <br>
+[2.3 12-Factor-Apps and API Documentation](2.3-12-Factor-Apps-and-API-Documentation) <br>
+[3. Part II: Docker Deployment](Part-II:-Docker-Deployment) <br>
+[3.1 Preparation](3.1-Preparation) <br>
+[3.2 Compilation Instructions: Building the Container Image and Starting the Container in the Network](3.2 Compilation-Instructions:-Building-the-Container-Image-and-Starting-the-Container-in-the-Network) <br>
+[4. Part III: Kubernetes Deployment](4.-Part-III:-Kubernetes-Deployment) <br>
+[4.1 Preparation](4.1-Preparation) <br>
+[4.2 Compilation Instructions: Performing the Deployment and Check](4.2 Compilation-Instructions:-Performing-the-Deployment-and-Check) <br>
+[5. Summary and Starting the Service](5. Summary-and-Starting-the-Service) <br>
 
 
 
@@ -27,8 +27,8 @@ The task revolves around the development of a microservice named “Optimize!”
 3. **Deployment** of the microservice in **Kubernetes**
 5. **Documentation** of the solution
 
+# 2. Part I: Development of Microservice
 
-# 2. Part I: Development of Microservice "Optimize!"
 ## 2.1 Structure of the application 
 The microservice “Optimize!” was developed in Python and, as required, includes the provision of a REST API, access to another service called “Marketdata Simulator,” which simulates the AWATTAR Service API, as well as the implementation of resilience/error tolerance or external configuration. The centerpiece of the submitted code is the file **app.py**: this code implements the microservice “Optimize!”, which receives data in the form of JSON objects from the other API (“Marketdata Simulator”) based on a time specification made by the user and, based on this, determines the cheapest contiguous time period for electricity consumption.
 The application consists of:
@@ -142,7 +142,7 @@ Furthermore, the file configures within the specification for the environment �
 <br> <br>
 As already explained in detail in chapter “2.2 How the Code in app.py Works”, the optimize.yaml consequently contains two more essential components: the **ConfigMap** for the API URL as a general parameter and the **Secret** for the API Key as a sensitive, protect-worthy content. In summary, through the functionality described in chapter 2.2, the configuration of the environment variables and their protection is ensured. However, it should be noted at this point that a Kubernetes Secret like this is not actually “secret” but only “opaque”, as the API Key within the Secret is stored as a Base64-encoded string (i.e., “MTIzNDU=” for the binary string “12345=”) and is therefore not readable for Kubernetes without decryption. For larger and publicly accessible applications, it is advisable to use additional products for managing secrets and confidential data, such as IBM Cloud Secrets Manager, AWS Secrets Manager, HashiCorp Vault, or CyberArk.
 
-## 4.2 Compilation instructions: performing the deployment and check
+## 4.2 Compilation Instructions: Performing the Deployment and Check
 After this preparation of the YAML files, you can now deploy in Kubernetes. On a Mac, Minikube should be started in a terminal window; it is advisable to also display the dashboard directly:
 
 ```
