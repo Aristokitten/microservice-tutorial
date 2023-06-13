@@ -86,13 +86,13 @@ Through the .dockerignore file, unnecessary files and directories are excluded a
 
 ## 3.2 Compilation Instructions: Building the Container Image and Starting the Container in the Network
 
-After the preparation, the container **image** can now be built using the following command:
+After the preparation, the container **image** can now be built using the following command: <br>
 ``docker build -t optimizeapp .`` (do NOT forget the point at the end!)
 
-Since "Optimize!" runs inside the container, it is necessary to share the same **network** with the Marketdata Simulator for communication. Use the following command to create a Docker network named “dhbw”:
+Since "Optimize!" runs inside the container, it is necessary to share the same **network** with the Marketdata Simulator for communication. Use the following command to create a Docker network named “dhbw”: <br>
 ``docker network create dhbw``
 
-Next, start the Marketdata Simulator in this dhbw network:
+Next, start the Marketdata Simulator in this dhbw network: <br>
 ``docker run --name marketdata -d -p 8080:8080 --network dhbw haraldu/marketdatasim:1``
 
 As the next step, "Optimize!" also needs to be started within this network. Enter the following command, which runs a Docker container named “optimizeapp” on the “dhbw” network and accesses port 8000 of the host system. The container is started with the environment variables “API_KEY” and “API_URL”, where “API_KEY” is set to “12345” and “API_URL” is set to “http://marketdata:8080/v1/marketdata”. Additionally, the container is started as a background process ("detached mode") with “-d”, and port 5000 in the container is mapped to port 8000 on the host system (“-p 8000:5000”).
@@ -108,7 +108,69 @@ This set of commands describes the process of building and running the “Optimi
 
 # Part III: Kubernetes Deployment
 
+The container image created with Docker can now be deployed on Kubernetes using Minikube, which is a local and lightweight Kubernetes implementation. Minikube creates a VM on a local PC (in my case MacOS) and provides a simple cluster that contains only one node.
 
+## 4.1 Preparation
+
+After the Kubernetes cluster infrastructure is set up with Minikube and the image has been built, Kubernetes manifests in the form of YAML files are needed for a successful deployment: these contain the desired configurations and specifications of the application. In the present case, these are the following two files:
+1. **marketdata.yaml**: File for creating the Marketdata Simulator Services and Deployments. (Since the YAML file is provided by the lecturer, we will not discuss it further here but focus on the self-created YAML file for "Optimize!").
+2. **optimize.yaml**: File for creating the "Optimize!" Services and Deployments, including Configs and Secrets.
+<br> <br>
+
+The “**Service**” YAML (see appendix 5) with the name “optimize” and the label “app:optimize” serves to provide a stable IP address and a DNS name for Pods running “Optimize!”. For a successful definition of the Kubernetes Service, spec.selector app=optimize must match app=optimize in the Deployment. The “spec” part defines the specific settings for the service and defines a Kubernetes service named “optimize” that is available on all nodes in the cluster on port 5000 and targets all Pods that have the “app: optimize” label. The “type: NodePort” specification makes “Optimize!” available via a NodePort: this essentially reserves a static port number to allow external access to the application.
+<br> <br>
+
+The “**Deployment**” YAML describes the desired state of the configuration, also called “desired state”, and creates the ReplicaSet, which in turn creates Pod(s) based on the template.
+<br>In the present case (see appendix 4), a ReplicaSet is generated and, with the template as a blueprint for Pod creation, not only the Pod label “optimize” is set, but the container in the Pod is also described with “spec”. This includes, for example, that it uses the image “optimize:veronikasp”, that the image must be locally available or is created locally in Minikube (ImagePullPolicy “Never”), and that the port, as set in the EXPOSE in the Dockerfile, is running on 5000.
+<br>
+Furthermore, the file configures within the specification for the environment “env” in the “readinessProbe” the sending of an HTTP GET request to the endpoint “.../health” on port 5000 to check whether the container is ready to process incoming requests. This check is initially performed 5 seconds after the container starts and then repeated every 30 seconds. Also part of the environment is the definition of the two **environment variables** “API_URL” and “API_KEY” required at runtime, which are passed to the container and initialized with the values from the ConfigMap (“optimize-api-config”) and the Secret (“optimize-api-key”). The use of environment variables centralizes configuration and secret information and makes them reusable without having to hard-code them in the container image “optimize.veronikasp”. This ensures increased flexibility and scalability of the application.
+
+<br> <br>
+As already explained in detail in chapter “2.2 How the Code in app.py Works”, the optimize.yaml consequently contains two more essential components: the **ConfigMap** for the API URL as a general parameter and the **Secret** for the API Key as a sensitive, protect-worthy content. In summary, through the functionality described in chapter 2.2, the configuration of the environment variables and their protection is ensured. However, it should be noted at this point that a Kubernetes Secret like this is not actually “secret” but only “opaque”, as the API Key within the Secret is stored as a Base64-encoded string (i.e., “MTIzNDU=” for the binary string “12345=”) and is therefore not readable for Kubernetes without decryption. For larger and publicly accessible applications, it is advisable to use additional products for managing secrets and confidential data, such as IBM Cloud Secrets Manager, AWS Secrets Manager, HashiCorp Vault, or CyberArk.
+
+## 4.2 Compilation instructions: performing the deployment and check
+After this preparation of the YAML files, you can now deploy in Kubernetes. On a Mac, Minikube should be started in a terminal window; it is advisable to also display the dashboard directly:
+
+```
+minikube start
+minikube dashboard
+```
+
+In a second terminal window, the following commands can now be executed: <br>
+```
+eval $(minikube docker-env)
+docker images
+docker build -t optimize:veronikasp .
+kubectl apply -f deployment/marketdata.yaml
+kubectl apply -f deployment/optimize.yaml
+```
+
+Outside of Kubernetes, the URL can be displayed with Minikube using the following command, or to test the running services and call the Marketdata Simulator or "Optimize!" in the following way:
+```
+minikube service list
+minikube service marketdata --url
+minikube service optimize --url
+```
+
+The images found in the appendix document the successful deployment:
+• Appendix 6: The Minikube **Dashboard** shows the two **deployments** "optimize-deployment" and "marketdata", as well as the running **Pods** with the images "optimize:veronikasp" and "haraldu/marketdatasim:1".
+• Appendix 7: The **API documentation** can be viewed via the path ".../apidocs" and the two GET functions for the Data and Healthcheck endpoint can be tested.
+• Appendix 8: The different paths can be called: from the call of the **get_optimal function** using the example of "q=4" for the four cheapest contiguous electricity hours, through the **health check** to the generation of a Client Error in the exemplary case of an **empty entry** of "q=" or **incorrect, negative entry** of "q=-4".
+
+# 5. Summary and Starting the Service
+In summary, a custom microservice called “Optimize!” was first developed locally, then an image was created with Docker and packed into a container, and finally the deployment in Kubernetes was carried out with Minikube. By adhering to the 12-Factor-Apps principles and best practices, "Optimize!" is a lightweight application that has been designed to operate as simply and "noiselessly" as possible - completely independent of the operating environment. <br>
+To start the service, the following steps must be executed in the terminal:
+```
+minikube start
+minikube service optimize --url
+```
+
+With the URL output and the final overview of paths provided below, the “Optimize!” service can now be used.
+| Path                        | Description                  |
+|-----------------------------|------------------------------|
+| ".../apidocs"               | Swagger documentation of API |
+| ".../health"                | Healthcheck Endpoint         |
+| ".../api/v1/get_optimal?q=" | Data Endpoint                |
 
 
 
