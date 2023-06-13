@@ -19,14 +19,14 @@ The task revolves around the development of a microservice named “Optimize!”
 The microservice “Optimize!” was developed in Python and, as required, includes the provision of a REST API, access to another service called “Marketdata Simulator,” which simulates the AWATTAR Service API, as well as the implementation of resilience/error tolerance or external configuration. The centerpiece of the submitted code is the file **app.py**: this code implements the microservice “Optimize!”, which receives data in the form of JSON objects from the other API (“Marketdata Simulator”) based on a time specification made by the user and, based on this, determines the cheapest contiguous time period for electricity consumption.
 The application consists of:
 
-| Directory     | File                          | Description                                                                                                                      |   |   |
-|---------------|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------|---|---|
-| source        | app.py                        | Source code for the microservice “Optimize!”                                                                                     |   |   |
-| deployment    | marketdata.yaml optimize.yaml | Files for deployment in Kubernetes                                                                                               |   |   |
-| documentation | swagger.yaml                  | File for API documentation with Swagger                                                                                          |   |   |
-| n.a.          | Dockerfile                    | File for building the container image                                                                                            |   |   |
-| n.a.          | .dockerignore                 | File for excluding files and directories during the Docker build process                                                         |   |   |
-| n.a.          | requirements.txt              | Text file for defining the dependencies of the project with the required Python packages and modules, as well as their respective versions |   |   |
+| Directory     | File                          | Description                                                                                                                      |
+|---------------|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| source        | app.py                        | Source code for the microservice “Optimize!”                                                                                     |
+| deployment    | marketdata.yaml optimize.yaml | Files for deployment in Kubernetes                                                                                               |
+| documentation | swagger.yaml                  | File for API documentation with Swagger                                                                                          |
+| n.a.          | Dockerfile                    | File for building the container image                                                                                            |
+| n.a.          | .dockerignore                 | File for excluding files and directories during the Docker build process                                                         |
+| n.a.          | requirements.txt              | For defining the dependencies of the project with the required Python packages and modules, as well as their respective versions |
 
 
 ## 2.2 Functionality of the code in app.py
@@ -37,27 +37,20 @@ These variables are defined for the container in a Kubernetes cluster in the **o
 For “API_URL”, the value is fetched from the **ConfigMap** named “optimize-api-config” with the key “apiUrl”. The ConfigMap is a Kubernetes resource that stores key-value pairs for application configuration. In this case, the value for “API_URL” is read from the “apiUrl” key of the “optimize-api-config” ConfigMap. For “API_KEY”, the value is fetched from a **Secret** named “optimize-api-key” with the key “apiKey”. A Secret is a Kubernetes resource that stores sensitive information like passwords or API keys and protects them from unauthorized access. In this case, the value for “API_KEY” is read from the “apiKey” key of the “optimize-api-key” Secret.
 The route “…/api/v1/get_optimal” is responsible for the main purpose of the microservice: Through the “get_best()” function, a request is sent to the API to obtain the hourly electricity data with start time, end time, and price. Here, the following different **error situations** are captured:
 
-| directory     | File                          | Description                                                                                                                      |   |   |
-|---------------|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------|---|---|
-| source        | app.py                        | Source code for the microservice “Optimize!”                                                                                     |   |   |
-| deployment    | marketdata.yaml optimize.yaml | Files for deployment in Kubernetes                                                                                               |   |   |
-| documentation | swagger.yaml                  | File for API documentation with Swagger                                                                                          |   |   |
-| n.a.          | Dockerfile                    | File for building the container image                                                                                            |   |   |
-| n.a.          | .dockerignore                 | File for excluding files and directories during the Docker build process                                                         |   |   |
-| n.a.          | requirements.txt              | For defining the dependencies of the project with the required Python packages and modules, as well as their respective versions |   |   |
-
+| Error Code    | Details                                             | Description                                                       |
+|---------------|-----------------------------------------------------|-------------------------------------------------------------------|
+| HTTP Code 500 | Internal Server Error                               | Problems with data retrieval from “Marketdata Simulator”          |
+| HTTP Code 408 | Request Timed Out                                   | Time-out after three seconds and three retries                    |
+| HTTP Code 422 | Client Error, Unprocessable Entity: API Key missing | Missing API Key during data retrieval from “Marketdata Simulator” |
+| HTTP Code 401 | Client Error, Unauthorized: Invalid API Key         | Invalid API Key during data retrieval from “Marketdata Simulator” |
+| HTTP Code 404 | Client Error, Not found                             | Requested resource cannot be found, e.g. incorrect URL            |
 
 Additionally, there is a **validation** of the user request (see Table 3): in particular, whether the requested number of hours q can be fulfilled with the number of available JSON objects from the “Marketdata Simulator”: 
 
-| directory     | File                          | Description                                                                                                                      |   |   |
-|---------------|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------|---|---|
-| source        | app.py                        | Source code for the microservice “Optimize!”                                                                                     |   |   |
-| deployment    | marketdata.yaml optimize.yaml | Files for deployment in Kubernetes                                                                                               |   |   |
-| documentation | swagger.yaml                  | File for API documentation with Swagger                                                                                          |   |   |
-| n.a.          | Dockerfile                    | File for building the container image                                                                                            |   |   |
-| n.a.          | .dockerignore                 | File for excluding files and directories during the Docker build process                                                         |   |   |
-| n.a.          | requirements.txt              | For defining the dependencies of the project with the required Python packages and modules, as well as their respective versions |   |   |
-
+| Error Code    | Details                                                 | Description                                                                       |
+|---------------|---------------------------------------------------------|-----------------------------------------------------------------------------------|
+| HTTP Code 400 | Client Error, no hours requested                        | The number of requested q hours is either nothing or less than or equal to zero   |
+| HTTP Code 400 | Client Error, requested number of hours not satisfiable | The number of requested q hours is greater than the currently available data from |
 
 Subsequently, the cheapest time window for electricity consumption is determined by iterating through the data sets and calculating the average cheapest price in EUR/kWh for the requested q hours. The result is formatted and returned as JSON.
 In addition, a **health check endpoint** is implemented under the URL ".../health", which tests the availability of the microservice. Finally, the microservice is run through the main function and listens on (Flask standard) port 5000 on all network interfaces.
