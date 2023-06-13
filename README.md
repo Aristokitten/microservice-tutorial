@@ -1,5 +1,5 @@
-# microservice-tutorial
-This repository is aimed at knowledge sharing with colleagues and providing them a first source of practical contents.
+# Welcome to this Microservice Example
+*This repository is the english copy of a practical project I finished during my studies in business informatics in April 2023. The purpose of this repository is to serve as example when sharing know-how with colleagues and to provide them with a first source of practical contents that (probably?) can't be destroyed.*
 
 
 # 1. Project Information, Task Description, and Goal
