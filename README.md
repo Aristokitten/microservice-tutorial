@@ -1,21 +1,6 @@
 # Welcome to this Microservice Example
 *This repository is the english copy of a practical project I finished during my studies in business informatics in April 2023. The purpose of this repository is to serve as example when sharing know-how with colleagues and to provide them with a first source of practical contents that (probably?) can't be destroyed.*
 
-[1. Project Information, Task Description, and Goal](1.-Project-Information,-Task-Description,-and-Goal) <br>
-[2. Part I: Development of Microservice](2.-Part-I:-Development-of-Microservice) <br>
-[2.1 Structure of the application](2.1-Structure-of-the-application) <br>
-[2.2 Functionality of the code in app.py](2.2-Functionality-of-the-code-in-app.py) <br>
-[2.3 12-Factor-Apps and API Documentation](2.3-12-Factor-Apps-and-API-Documentation) <br>
-[3. Part II: Docker Deployment](Part-II:-Docker-Deployment) <br>
-[3.1 Preparation](3.1-Preparation) <br>
-[3.2 Compilation Instructions: Building the Container Image and Starting the Container in the Network](3.2 Compilation-Instructions:-Building-the-Container-Image-and-Starting-the-Container-in-the-Network) <br>
-[4. Part III: Kubernetes Deployment](4.-Part-III:-Kubernetes-Deployment) <br>
-[4.1 Preparation](4.1-Preparation) <br>
-[4.2 Compilation Instructions: Performing the Deployment and Check](4.2 Compilation-Instructions:-Performing-the-Deployment-and-Check) <br>
-[5. Summary and Starting the Service](5. Summary-and-Starting-the-Service) <br>
-
-
-
 # 1. Project Information, Task Description, and Goal
 As part of the fourth semester of Business Informatics Data Science, a portfolio examination must be completed for the "Distributed Systems" course and submitted to the lecturer Harald Uebele. This documentation is the result of the developed program design.
 The task revolves around the development of a microservice named “Optimize!”, which is supposed to determine the cheapest contiguous time period for electricity consumption using a time specification from the data of an API. The following sub-tasks need to be completed for this:
