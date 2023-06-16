@@ -4,10 +4,10 @@
 # 1. Project Information, Task Description, and Goal
 As part of the fourth semester of Business Informatics Data Science, a portfolio examination must be completed for the "Distributed Systems" course and submitted to the lecturer. This documentation is the result of the developed program design.
 The task revolves around the development of a microservice named “Optimize!”, which is supposed to determine the cheapest contiguous time period for electricity consumption using a time specification from the data of an API. The following sub-tasks need to be completed for this:
-1. **Development** of the microservice in Python, Java, or Node.js. This includes:
-• Provision of a REST API
-• Access to another service via its REST API or use of a corresponding library
-• Implementation of resilience/error tolerance, external configuration
+1. **Development** of the microservice in Python, Java, or Node.js. This includes: <br>
+• Provision of a REST API <br>
+• Access to another service via its REST API or use of a corresponding library <br>
+• Implementation of resilience/error tolerance, external configuration <br>
 2. Building a **container image** and deploying the microservice using **Docker**
 3. **Deployment** of the microservice in **Kubernetes**
 5. **Documentation** of the solution
