@@ -1,0 +1,117 @@
+---
+swagger: "2.0"
+info:
+  title: Optimize!
+  description: Do you get your electricity from an electricity supplier with a
+    flexible tariff? That means your electricity price changes every hour,
+    depending on the current electricity market. If you want to know when is the
+    best time to save on electricity bills, this API will help.* <br> <br>
+    ***Optimize!** uses a time specification (in full hours, e.g. 1 hour or 3 hours) to determine the average cheapest 
+    contiguous time period for using electricity. The service is based on the **Markedata Simulator** which is used for 
+    educational purposes and simulates the [AWATTar Service API](https://www.awattar.de/services/api). 
+    If you are interested in learning more about the Marketdata Simulator, please refer to 
+    this [container image](https://hub.docker.com/r/haraldu/marketdatasim) on Docker Hub Repository. 
+    If, however, you are interested in the practical application and in using Optimize!, keep reading.
+  version: 0.0.1
+  contact:
+    name: Veronika Spielmann
+    email: wi21010@lehre.dhbw-stuttgart.de
+paths:
+  "/api/v1/get_optimal":
+    get:
+      summary: Get optimal electricity price.
+      description: "Calculates the optimal average electricity price based on the
+        requested amount of hours"
+      parameters:
+      - required: true
+        schema:
+          title: q
+          type: integer
+        name: q
+        in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Client Error:
+                    type: string
+                    description: Requested hours are either none, smaller or equal to zero or not
+                      satisfiable with the data available.
+                    example: No hours requested
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Client Error:
+                    type: string
+                    description: Response status code equals 401.
+                    example: Unauthorized, Invalid API Key
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Client Error:
+                    type: string
+                    description: Response status code equals 404.
+                    example: Not found
+        "408":
+          description: Request Timeout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Server Error:
+                    type: string
+                    description: After three retries, with three seconds timeout, still not a response.
+                    example: Request timed out
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Client Error:
+                    type: string
+                    description: Response status code equals 404.
+                    example: Unprocessable Entity, API Key missing
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Server Error:
+                    type: string
+                    description: No response from server.
+                    example: Internal Server Error
+
+  "/health":
+    get:
+      summary: Health Check
+      description: Checks if the server is running.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                  example: {"status":"UP"}
+

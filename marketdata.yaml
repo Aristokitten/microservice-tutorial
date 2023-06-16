@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketdata
+  labels:
+    app: marketdata
+spec:
+  type: NodePort
+  ports:
+    - port: 8080 
+      name: http
+  selector:
+    app: marketdata
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: marketdata
+  labels:
+    app: marketdata
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: marketdata
+  template:
+    metadata:
+      labels:
+        app: marketdata
+    spec:
+      containers:
+      - image: haraldu/marketdatasim:1
+        name: marketdata
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 30
