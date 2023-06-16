@@ -2,7 +2,7 @@
 *This repository is the english copy of a practical project I finished during my studies in business informatics in April 2023. The purpose of this repository is to serve as example when sharing know-how with colleagues and to provide them with a first source of practical contents that (probably?) can't be destroyed.*
 
 # 1. Project Information, Task Description, and Goal
-As part of the fourth semester of Business Informatics Data Science, a portfolio examination must be completed for the "Distributed Systems" course and submitted to the lecturer Harald Uebele. This documentation is the result of the developed program design.
+As part of the fourth semester of Business Informatics Data Science, a portfolio examination must be completed for the "Distributed Systems" course and submitted to the lecturer. This documentation is the result of the developed program design.
 The task revolves around the development of a microservice named “Optimize!”, which is supposed to determine the cheapest contiguous time period for electricity consumption using a time specification from the data of an API. The following sub-tasks need to be completed for this:
 1. **Development** of the microservice in Python, Java, or Node.js. This includes:
 • Provision of a REST API
